@@ -1,0 +1,22 @@
+<mat-toolbar>
+    <span>
+        Redes Neurais > {{ id ? 'Detalhes' : 'Novo' }}
+    </span>
+</mat-toolbar>
+
+<section>
+    <form [formGroup]="neuralNetworkForm" (ngSubmit)="onSubmit()">
+        <mat-card>
+            <mat-card-content>
+                <mat-form-field appearance="legacy" color="accent">
+                    <mat-label>Nome da Rede Neural</mat-label>
+                    <input matInput type="text" formControlName="name" autocomplete="off" readonly="true">
+                </mat-form-field>
+            </mat-card-content>
+
+            <mat-card-actions>
+                <button mat-button color="accent" (click)="back()">VOLTAR</button>
+            </mat-card-actions>
+        </mat-card>
+    </form>
+</section>

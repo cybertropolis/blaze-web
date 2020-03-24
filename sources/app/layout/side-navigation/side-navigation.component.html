@@ -1,0 +1,44 @@
+<mat-sidenav-container class="content">
+
+    <mat-sidenav #sidenavigation [mode]="'side'" fxFlex="300px" [class.mat-elevation-z8]="true" fxLayout="column">
+        <mat-toolbar>
+            >
+        </mat-toolbar>
+
+        <button mat-button [routerLink]="['/dashboard']" class="text-left">
+            <mat-icon>dashboard</mat-icon> Painel de Controle
+        </button>
+        <button mat-button [routerLink]="['/models-collection']" class="text-left">
+            <mat-icon>bubble_chart</mat-icon> Modelos
+        </button>
+        <button mat-button [routerLink]="['/neural-networks-collection']" class="text-left">
+            <mat-icon>memory</mat-icon> Redes Neurais
+        </button>
+        <button mat-button [routerLink]="['/configurations']" class="text-left">
+            <mat-icon>settings</mat-icon> Configurações
+        </button>
+    </mat-sidenav>
+
+    <mat-sidenav-content fxFlex>
+        <div class="content" fxLayout="column" fxlayoutGap="10px">
+
+            <blaze-top-navigation>
+                <button mat-icon-button (click)="sidenavigation.toggle()">
+                    <mat-icon>menu</mat-icon>
+                </button>
+                <img src="assets/images/32/blaze.png" alt="Blaze" />
+                <h1 fxFlexOffset="10px">Blaze</h1>
+            </blaze-top-navigation>
+
+            <div fxFlex>
+                <blaze-content>
+                    <ng-content></ng-content>
+                </blaze-content>
+            </div>
+
+            <blaze-footer></blaze-footer>
+
+        </div>
+    </mat-sidenav-content>
+
+</mat-sidenav-container>

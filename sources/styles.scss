@@ -1,0 +1,52 @@
+@import '~@angular/material/prebuilt-themes/purple-green.css';
+
+html,
+body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+mat-form-field,
+mat-slider {
+    width: 100%;
+}
+
+mat-icon[matSuffix] {
+    cursor: pointer;
+}
+
+section {
+    padding: 10px
+}
+
+table {
+    width: 100%;
+}
+
+.text-center {
+    text-align: center
+}
+
+.mat-tab-body-wrapper {
+    padding: 10px;
+}
+
+.checkbox {
+    padding: {
+        left: 15px;
+        top: 8px;
+        bottom: 20px;
+    }
+}
+
+.button-margin-bottom {
+    margin-bottom: 5px;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}

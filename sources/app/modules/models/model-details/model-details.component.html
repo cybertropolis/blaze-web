@@ -1,0 +1,327 @@
+<mat-toolbar>
+    <span>
+        Modelos > {{ id ? name : 'Novo' }}
+    </span>
+</mat-toolbar>
+
+<section>
+    <form [formGroup]="modelForm" (ngSubmit)="save()">
+        <mat-card>
+            <mat-card-content>
+                <mat-tab-group color="accent" dynamicHeight="true">
+
+                    <!-- Modelo -->
+                    <mat-tab label="Modelo">
+                        <mat-form-field appearance="legacy" color="accent">
+                            <mat-label>Nome do Modelo</mat-label>
+                            <input matInput type="text" formControlName="name" autocomplete="off">
+                        </mat-form-field>
+
+                        <mat-form-field appearance="legacy" color="accent">
+                            <mat-select placeholder="Rede Neural" formControlName="neural_network_id">
+                                <mat-option *ngFor="let neural_network of neural_networks" [value]="neural_network.value">
+                                    {{neural_network.viewValue}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+
+                        <div formGroupName="inputs">
+                            <h4>Entradas</h4>
+
+                            <mat-form-field appearance="legacy" color="accent">
+                                <mat-label>Teste</mat-label>
+                                <input matInput type="text" formControlName="test_path" autocomplete="off">
+                                <mat-hint>Diretório do lote de teste</mat-hint>
+                            </mat-form-field>
+
+                            <mat-form-field appearance="legacy" color="accent">
+                                <mat-label>Treino</mat-label>
+                                <input matInput type="text" formControlName="train_path" autocomplete="off">
+                                <mat-hint>Diretório do lote de treino</mat-hint>
+                            </mat-form-field>
+
+                            <mat-form-field appearance="legacy" color="accent">
+                                <mat-label>Validação</mat-label>
+                                <input matInput type="text" formControlName="validation_path" autocomplete="off">
+                                <mat-hint>Diretório do lote de validação</mat-hint>
+                            </mat-form-field>
+                        </div>
+
+                        <div formGroupName="outputs">
+                            <h4>Saídas</h4>
+
+                            <mat-form-field appearance="legacy" color="accent">
+                                <mat-label>Servidor</mat-label>
+                                <input matInput type="text" formControlName="serving_path" autocomplete="off">
+                                <mat-hint>Diretório do modelo</mat-hint>
+                            </mat-form-field>
+                        </div>
+                    </mat-tab>
+
+                    <!-- Rótulos -->
+                    <mat-tab label="Rótulos">
+                        <div formArrayName="labels" fxLayout="column" fxLayoutGap="10px">
+                            <div>
+                                <button mat-button type="button" color="accent" (click)="insertLabel()">Adicionar</button>
+                            </div>
+
+                            <div *ngFor="let control of labels.controls; let label=index">
+                                <mat-form-field appearance="legacy" color="accent">
+                                    <mat-label>Rótulo</mat-label>
+                                    <input matInput type="text" [formControlName]="label" autocomplete="off">
+                                    <mat-icon matSuffix (click)="removeLabel(label)">delete</mat-icon>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                    </mat-tab>
+
+                    <!-- Aprendizagem -->
+                    <mat-tab label="Aprendizagem">
+                        <div formGroupName="learning_rate">
+                            <mat-form-field appearance="legacy" color="accent">
+                                <mat-label>Decaimento da Média Móvel</mat-label>
+                                <input matInput type="number" step="1" min="0" max="1000" formControlName="moving_average_decay" autocomplete="off">
+                            </mat-form-field>
+
+                            <mat-form-field appearance="legacy" color="accent">
+                                <mat-label>Número de Épocas por Decaimento</mat-label>
+                                <input matInput type="number" step="1" min="0" max="1000" formControlName="epochs_per_decay" autocomplete="off">
+                            </mat-form-field>
+
+                            <mat-form-field appearance="legacy" color="accent">
+                                <mat-label>Suavização de Rótulos</mat-label>
+                                <input matInput type="number" step="0.01" min="0" max="1" formControlName="label_smoothing" autocomplete="off">
+                            </mat-form-field>
+
+                            <div class="checkbox">
+                                <mat-checkbox formControlName="sync_replicas">
+                                    Réplicas de Sincronização
+                                </mat-checkbox>
+                            </div>
+
+                            <mat-form-field appearance="legacy" color="accent">
+                                <mat-label>Réplicas para Agregar</mat-label>
+                                <input matInput type="number" step="1" min="0" max="1000" formControlName="replicas_to_aggregate" autocomplete="off">
+                            </mat-form-field>
+
+                            <h3>Decaimento da Taxa de Aprendizagem</h3>
+
+                            <mat-form-field appearance="legacy" color="accent">
+                                <mat-label>Tipo de Decaimento da Taxa de Aprendizagem</mat-label>
+                                <mat-select placeholder="Rede Neural" formControlName="learning_rate_decay_type_id">
+                                    <mat-option *ngFor="let learning_rate_decay_type of learning_rate_decay_types" [value]="learning_rate_decay_type.value">
+                                        {{learning_rate_decay_type.viewValue}}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+
+                            <div formGroupName="fixed" *ngIf="learning_rate_decay_type_id === 'fixed'">
+                                <mat-form-field appearance="legacy" color="accent">
+                                    <mat-label>Taxa de Aprendizagem</mat-label>
+                                    <input matInput type="number" step="0.0001" min="0" max="1" formControlName="learning_rate" autocomplete="off">
+                                </mat-form-field>
+                            </div>
+
+                            <div formGroupName="exponential" *ngIf="learning_rate_decay_type_id === 'exponential'">
+                                <mat-form-field appearance="legacy" color="accent">
+                                    <mat-label>Taxa de Aprendizagem</mat-label>
+                                    <input matInput type="number" step="0.0001" min="0" max="1" formControlName="learning_rate" autocomplete="off">
+                                </mat-form-field>
+
+                                <mat-form-field appearance="legacy" color="accent">
+                                    <mat-label>Fator de Decaimento</mat-label>
+                                    <input matInput type="number" step="1" min="0" max="1000" formControlName="decay_factor" autocomplete="off">
+                                </mat-form-field>
+
+                                <div class="checkbox">
+                                    <mat-checkbox formControlName="staircase">Decaimento em Escada</mat-checkbox>
+                                </div>
+                            </div>
+
+                            <div formGroupName="polynomial" *ngIf="learning_rate_decay_type_id === 'polynomial'">
+                                <mat-form-field appearance="legacy" color="accent">
+                                    <mat-label>Taxa de Aprendizagem</mat-label>
+                                    <input matInput type="number" step="0.0001" min="0" max="1" formControlName="learning_rate" autocomplete="off">
+                                </mat-form-field>
+
+                                <mat-form-field appearance="legacy" color="accent">
+                                    <mat-label>Taxa de Aprendizagem Final</mat-label>
+                                    <input matInput type="number" step="0.0001" min="0" max="1" formControlName="end_learning_rate" autocomplete="off">
+                                </mat-form-field>
+
+                                <mat-form-field appearance="legacy" color="accent">
+                                    <mat-label>Força</mat-label>
+                                    <input matInput type="number" step="0.0001" min="0" max="1" formControlName="power" autocomplete="off">
+                                </mat-form-field>
+
+                                <div class="checkbox">
+                                    <mat-checkbox formControlName="cycle">Ciclo</mat-checkbox>
+                                </div>
+                            </div>
+                        </div>
+                    </mat-tab>
+
+                    <!-- Otimização -->
+                    <mat-tab label="Otimização">
+                        <div formGroupName="optimization">
+                            <mat-form-field appearance="legacy" color="accent">
+                                <mat-label>Decaimento do Peso</mat-label>
+                                <input matInput type="number" step="0.00001" min="0" max="1" formControlName="weight_decay" autocomplete="off">
+                            </mat-form-field>
+
+                            <h3>Otimizador</h3>
+
+                            <mat-form-field appearance="legacy" color="accent">
+                                <mat-label>Otimizador</mat-label>
+                                <mat-select placeholder="Rede Neural" formControlName="optimizer_id">
+                                    <mat-option *ngFor="let optimizer of optimizers" [value]="optimizer.value">
+                                        {{optimizer.viewValue}}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+
+                            <div formGroupName="rmsprop" *ngIf="optimizer_id === 'rmsprop'">
+                                <mat-form-field appearance="legacy" color="accent">
+                                    <mat-label>Momentum</mat-label>
+                                    <input matInput type="number" step="0.00001" min="0" max="1" formControlName="momentum" autocomplete="off">
+                                </mat-form-field>
+
+                                <mat-form-field appearance="legacy" color="accent">
+                                    <mat-label>Epsilon</mat-label>
+                                    <input matInput type="number" step="0.00001" min="0" max="1" formControlName="epsilon" autocomplete="off">
+                                </mat-form-field>
+
+                                <mat-form-field appearance="legacy" color="accent">
+                                    <mat-label>Decaimento</mat-label>
+                                    <input matInput type="number" step="0.00001" min="0" max="1" formControlName="decay" autocomplete="off">
+                                    <mat-hint>Prazo de decaimento para RMSProp</mat-hint>
+                                </mat-form-field>
+                            </div>
+
+                            <div formGroupName="momentum" *ngIf="optimizer_id === 'momentum'">
+                                <mat-form-field appearance="legacy" color="accent">
+                                    <mat-label>Momentum</mat-label>
+                                    <input matInput type="number" step="0.00001" min="0" max="1" formControlName="momentum" autocomplete="off">
+                                </mat-form-field>
+                            </div>
+
+                            <div formGroupName="adam" *ngIf="optimizer_id === 'adam'">
+                                <mat-form-field appearance="legacy" color="accent">
+                                    <mat-label>Beta 1</mat-label>
+                                    <input matInput type="number" step="0.00001" min="0" max="1" formControlName="beta1" autocomplete="off">
+                                </mat-form-field>
+
+                                <mat-form-field appearance="legacy" color="accent">
+                                    <mat-label>Beta 2</mat-label>
+                                    <input matInput type="number" step="0.00001" min="0" max="1" formControlName="beta2" autocomplete="off">
+                                </mat-form-field>
+
+                                <mat-form-field appearance="legacy" color="accent">
+                                    <mat-label>Epsilon</mat-label>
+                                    <input matInput type="number" step="0.00001" min="0" max="1" formControlName="epsilon" autocomplete="off">
+                                </mat-form-field>
+                            </div>
+
+                            <div formGroupName="ftrl" *ngIf="optimizer_id === 'ftrl'">
+                                <mat-form-field appearance="legacy" color="accent">
+                                    <mat-label>Força da Taxa de Aprendizagem</mat-label>
+                                    <input matInput type="number" step="0.00001" min="-1" max="1" formControlName="learning_rate_power" autocomplete="off">
+                                </mat-form-field>
+
+                                <mat-form-field appearance="legacy" color="accent">
+                                    <mat-label>Valor do Acumulador Inicial</mat-label>
+                                    <input matInput type="number" step="0.00001" min="0" max="1" formControlName="initial_accumulator_value" autocomplete="off">
+                                </mat-form-field>
+
+                                <mat-form-field appearance="legacy" color="accent">
+                                    <mat-label>L1</mat-label>
+                                    <input matInput type="number" step="0.00001" min="0" max="1" formControlName="l1" autocomplete="off">
+                                </mat-form-field>
+
+                                <mat-form-field appearance="legacy" color="accent">
+                                    <mat-label>L2</mat-label>
+                                    <input matInput type="number" step="0.00001" min="0" max="1" formControlName="l2" autocomplete="off">
+                                </mat-form-field>
+                            </div>
+
+                            <div formGroupName="adadelta" *ngIf="optimizer_id === 'adadelta'">
+                                <mat-form-field appearance="legacy" color="accent">
+                                    <mat-label>Adadelta RHO</mat-label>
+                                    <input matInput type="number" step="0.00001" min="0" max="1" formControlName="rho" autocomplete="off">
+                                </mat-form-field>
+                            </div>
+
+                            <div formGroupName="adagrad" *ngIf="optimizer_id === 'adagrad'">
+                                <mat-form-field appearance="legacy" color="accent">
+                                    <mat-label>Valor Inicial do Acumulador de Adagrad</mat-label>
+                                    <input matInput type="number" step="0.00001" min="0" max="1" formControlName="initial_accumulator_value" autocomplete="off">
+                                </mat-form-field>
+                            </div>
+
+                            <div *ngIf="optimizer_id==='sgd'">
+                                <p>* Aplica o otimizador selecionado.</p>
+                                <p>* Não requer parametrização.</p>
+                            </div>
+                        </div>
+                    </mat-tab>
+
+                    <!-- Afinação -->
+                    <mat-tab label=" Afinação">
+                        <div formGroupName="fine_tuning">
+                            <mat-form-field appearance="legacy" color="accent">
+                                <mat-label>Checkpoint</mat-label>
+                                <input matInput type="text" formControlName="checkpoint_path" autocomplete="off">
+                                <mat-hint>Diretório no Sistema Operacional</mat-hint>
+                            </mat-form-field>
+
+                            <div class="checkbox">
+                                <mat-checkbox formControlName="ignore_missing_variables">
+                                    Ignore as Variáveis Ausentes
+                                </mat-checkbox>
+                            </div>
+
+                            <h3>Escopos Treináveis</h3>
+
+                            <div formArrayName="trainable_scopes" fxLayout="column" fxLayoutGap="10px">
+                                <div>
+                                    <button mat-button type="button" color="accent" (click)="insertTrainableScope()">Adicionar</button>
+                                </div>
+
+                                <div *ngFor="let control of trainable_scopes.controls; let trainable_scope=index">
+                                    <mat-form-field appearance="legacy" color="accent">
+                                        <mat-label>Escopo</mat-label>
+                                        <input matInput type="text" [formControlName]="trainable_scope" autocomplete="off">
+                                        <mat-icon matSuffix (click)="removeTrainableScope(trainable_scope)">delete</mat-icon>
+                                        <mat-hint>Diretório no Sistema Operacional</mat-hint>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+
+                            <h3>Escopos de Checkpoints Excluídos</h3>
+
+                            <div formArrayName="checkpoint_excluded_paths" fxLayout="column" fxLayoutGap="10px">
+                                <div>
+                                    <button mat-button type="button" color="accent" (click)="insertCheckpointPathToExclude()">Adicionar</button>
+                                </div>
+
+                                <div *ngFor="let control of checkpoint_excluded_paths.controls; let checkpoint_excluded_path=index">
+                                    <mat-form-field appearance="legacy" color="accent">
+                                        <mat-label>Escopo Excluído</mat-label>
+                                        <input matInput type="text" [formControlName]="checkpoint_excluded_path" autocomplete="off">
+                                        <mat-icon matSuffix (click)="removeCheckpointPathToExclude(checkpoint_excluded_path)">delete</mat-icon>
+                                        <mat-hint>Diretório no Sistema Operacional</mat-hint>
+                                    </mat-form-field>
+                                </div>
+                            </div>
+                        </div>
+                    </mat-tab>
+                </mat-tab-group>
+            </mat-card-content>
+
+            <mat-card-actions>
+                <button type="submit" mat-button color="accent" [disabled]="waiting">SALVAR</button>
+                <button mat-button color="accent" (click)="back()">VOLTAR</button>
+            </mat-card-actions>
+        </mat-card>
+    </form>
+</section>

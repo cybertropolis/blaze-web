@@ -1,0 +1,20 @@
+<mat-toolbar>
+    Configurações
+</mat-toolbar>
+
+<section>
+    <form [formGroup]="configurationsForm" (ngSubmit)="save()">
+        <mat-card>
+            <mat-card-content>
+                <mat-form-field appearance="legacy" color="accent">
+                    <mat-label>Diretório Base</mat-label>
+                    <input matInput type="text" formControlName="baseDirectory" autocomplete="off">
+                </mat-form-field>
+            </mat-card-content>
+
+            <mat-card-actions>
+                <button mat-button color="accent" [disabled]="waiting">SALVAR</button>
+            </mat-card-actions>
+        </mat-card>
+    </form>
+</section>
